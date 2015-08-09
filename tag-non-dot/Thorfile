@@ -1,0 +1,117 @@
+require 'thor'
+require 'fileutils'
+require 'pathname'
+
+class Project < Thor
+  include Thor::Actions
+
+  desc "generate NAME TYPE","generate the structure for a project"
+  method_option :type, enum: [:root,:business,:personal]
+  def generate(name,type,here = Pathname.new(current_dir))
+    create_structure(name,here)
+    `ln -nfs #{here.join(name+"-project").expand_path} #{here.join("..").join(type+"-projects").expand_path}`
+  end
+
+  desc "amsix NAME","generate the structure for an amsix project"
+  def amsix(name)
+    create_structure(name,Pathname.new(current_dir))
+  end
+
+  desc "engine NAME", "generate a structure for a rails engine project"
+  def engine name, here = Pathname.new(current_dir)
+    base_dir = Pathname.new("#{name.downcase}-project") || FileUtils.mkdir(here.join("#{name.downcase}-project"))
+    return say_status("FAIL","The project already exists here", :red) if base_dir.exist?
+
+    inside base_dir.to_s do
+      say_status("OK",FileUtils.mkdir("assets"))
+      say_status("OK",FileUtils.mkdir("DBFiles"))
+      say_status("OK", FileUtils.mkdir("code"))
+      say_status("OK", FileUtils.mkdir("sandbox"))
+      say_status("OK", FileUtils.mkdir("support"))
+      FileUtils.cd 'support' do
+        say_status("OK", FileUtils.mkdir("scripts"))
+      end
+    end
+  end
+
+  private
+
+  def create_structure(name,here)
+    base_dir = Pathname.new("#{name.downcase}-project") || FileUtils.mkdir(here.join("#{name.downcase}-project"))
+    return say_status("FAIL","The project already exists here", :red) if base_dir.exist?
+
+    inside base_dir.to_s do
+      say_status("OK",FileUtils.mkdir("assets"))
+      say_status("OK",FileUtils.mkdir("DBFiles"))
+      say_status("OK", FileUtils.mkdir("resources"))
+      say_status("OK", FileUtils.mkdir("code"))
+      say_status("OK", FileUtils.mkdir("scripts"))
+      say_status("OK", FileUtils.mkdir("sandbox"))
+      say_status("OK", FileUtils.mkdir("support"))
+      FileUtils.cd 'code' do
+      	FileUtils.mkdir("shared")
+      end
+    end
+  end
+
+
+  def current_dir
+    FileUtils.pwd
+  end
+
+  def self.source_root
+    File.dirname(__FILE__)
+  end
+
+end
+
+class Dotfiles < Thor
+  include Thor::Actions
+
+  desc "get REPO DIR","clones repo to DIR"
+  def get(repo,dir)
+    dotfile_dir = ENV["DOTFILE_DIR"] || Pathname.new(ENV['HOME']).join("workbench/resources/#{dir}").expand_path.to_s
+    splt = repo.split("/")
+    uname = splt[-2]
+    rp = splt[-1]
+    FileUtils.mkdir_p(Pathname.new(dotfile_dir).join(uname).expand_path.to_s)
+    FileUtils.cd Pathname.new(dotfile_dir).join(uname).expand_path.to_s do
+      `git clone #{repo}`
+    end
+  end
+end
+
+class Rbenv < Thor
+
+  include Thor::Actions
+
+  desc "gemset NAME","create a gemset NAME inheriting from rails42, global using 2.2.1"
+  # method_option :local, type: :boolean
+  method_option :global, type: :boolean
+  def gemset(name)
+    create_file ".rbenv-gemsets" do
+      gemsets = "#{name}\n"
+      gemsets += "global\n" if options[:global]
+      gemsets += "-global\n" if !options[:global]
+      "#{gemsets}"
+    end
+  end
+
+  private
+
+
+
+  def current_dir
+    FileUtils.pwd
+  end
+
+  def self.source_root
+    File.dirname(__FILE__)
+  end
+
+end
+
+
+
+
+

@@ -1,0 +1,9 @@
+#! /usr/bin/env zsh
+
+export ZSHDIR=$HOME/.dotfiles/tag-zsh
+export NONDOTDIR=$HOME/.dotfiles/tag-non-dot
+
+for file in `ls -1A $HOME/.dotfiles/tag-non-dot`; do
+	ln -nfs $NONDOTDIR/$file $HOME/$file
+done
+

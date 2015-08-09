@@ -1,0 +1,5 @@
+SYMLINK_DIRS="zprezto"
+COPY_ALWAYS="rcrc"
+TAGS="executables zsh zsh-init ruby git postgresql"
+EXCLUDES="aliases.zsh.bk 0000_before.zsh fasd.zsh prezto-override vi-mode.zsh 0_path.zsh git.zsh prezto-themes zmv.zsh aliases.zsh key-bindings.zsh rm.zsh colors.zsh last-command.zsh secrets.zsh zsh-aliases.zsh custom_prompt_path.zsh noglob.zsh theme.zsh zzzz_after.zsh"
+
